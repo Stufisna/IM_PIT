@@ -24,10 +24,13 @@ public class StaffManagementGUI extends JFrame {
 
     private JButton insertButton;
     private JButton deleteButton;
+    private JButton backButton;
 
     private Connection connection;
+    private MainGUI mainGUI;
 
-    public StaffManagementGUI() {
+    public StaffManagementGUI(MainGUI mainGUI) {
+        this.mainGUI = mainGUI;
         initializeUI();
         connectToDatabase();
     }
@@ -36,7 +39,7 @@ public class StaffManagementGUI extends JFrame {
         setTitle("Staff Management");
         setSize(400, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(16, 2));
+        setLayout(new GridLayout(17, 2));
 
         add(new JLabel("Staff Number:"));
         staffNumberField = new JTextField();
@@ -112,6 +115,16 @@ public class StaffManagementGUI extends JFrame {
         });
         add(deleteButton);
 
+        backButton = new JButton("Back");
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainGUI.setVisible(true);
+                dispose();
+            }
+        });
+        add(backButton);
+
         setVisible(true);
     }
 
@@ -129,7 +142,6 @@ public class StaffManagementGUI extends JFrame {
     private class InsertStaffWorker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() throws Exception {
-            // Check for missing or wrong input data
             if (staffNumberField.getText().isEmpty() || nameField.getText().isEmpty() ||
                 addressField.getText().isEmpty() || phoneNumberField.getText().isEmpty() ||
                 dobField.getText().isEmpty() || sexField.getText().isEmpty() ||
@@ -138,7 +150,7 @@ public class StaffManagementGUI extends JFrame {
                 qualificationField.getText().isEmpty() || experienceField.getText().isEmpty() ||
                 wardNumberField.getText().isEmpty() || allocatedField.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(StaffManagementGUI.this, "Please fill in all fields.");
-                return null; // Stop execution
+                return null;
             }
     
             try {
@@ -173,19 +185,14 @@ public class StaffManagementGUI extends JFrame {
         @Override
         protected void done() {
             try {
-                get(); // Wait for doInBackground to finish
+                get();
                 JOptionPane.showMessageDialog(StaffManagementGUI.this, "Staff inserted successfully!");
                 clearFields();
-                // Update GUI after insertion
-                // You can call a method here to refresh the displayed data in your GUI
-                // For example: refreshStaffList();
             } catch (Exception e) {
-                // Handle any exceptions that might occur during doInBackground
                 e.printStackTrace();
             }
         }
     }
-    
 
     private class DeleteStaffWorker extends SwingWorker<Void, Void> {
         @Override
@@ -204,11 +211,10 @@ public class StaffManagementGUI extends JFrame {
         @Override
         protected void done() {
             try {
-                get(); // Wait for doInBackground to finish
+                get();
                 JOptionPane.showMessageDialog(StaffManagementGUI.this, "Staff deleted successfully!");
                 clearFields();
             } catch (Exception e) {
-                // Handle any exceptions that might occur during doInBackground
                 e.printStackTrace();
             }
         }
@@ -232,11 +238,9 @@ public class StaffManagementGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new StaffManagementGUI();
-            }
+        SwingUtilities.invokeLater(() -> {
+            MainGUI mainGUI = new MainGUI();
+            new StaffManagementGUI(mainGUI);
         });
     }
 }
