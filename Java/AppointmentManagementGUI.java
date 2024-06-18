@@ -7,12 +7,14 @@ import java.sql.*;
 public class AppointmentManagementGUI extends JFrame {
     private JTextField appointmentNumField, examRoomField, patientNumField, staffNumField;
     private JTextField dateTimeField;
-    private JButton insertButton, removeButton;
+    private JButton insertButton, removeButton, backButton;
     private JTextArea displayArea;
 
     private Connection connection;
+    private MainGUI mainGUI;
 
-    public AppointmentManagementGUI() {
+    public AppointmentManagementGUI(MainGUI mainGUI) {
+        this.mainGUI = mainGUI;
         initComponents();
         initDatabaseConnection();
     }
@@ -22,7 +24,7 @@ public class AppointmentManagementGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel inputPanel = new JPanel(new GridLayout(6, 2));
+        JPanel inputPanel = new JPanel(new GridLayout(7, 2));
         inputPanel.add(new JLabel("Appointment Number:"));
         appointmentNumField = new JTextField();
         inputPanel.add(appointmentNumField);
@@ -45,8 +47,10 @@ public class AppointmentManagementGUI extends JFrame {
 
         insertButton = new JButton("Insert Appointment");
         removeButton = new JButton("Remove Appointment");
+        backButton = new JButton("Back");
         inputPanel.add(insertButton);
         inputPanel.add(removeButton);
+        inputPanel.add(backButton);
 
         add(inputPanel, BorderLayout.NORTH);
 
@@ -65,6 +69,14 @@ public class AppointmentManagementGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 removeAppointment();
+            }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainGUI.showMainGUI();
+                setVisible(false);
             }
         });
 
@@ -129,7 +141,7 @@ public class AppointmentManagementGUI extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new AppointmentManagementGUI().setVisible(true);
+                new AppointmentManagementGUI(null).setVisible(true);
             }
         });
     }
