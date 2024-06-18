@@ -16,6 +16,7 @@ public class PatientInsertionGUI extends JFrame {
     private JTextField sexField;
     private JButton insertButton;
     private JButton removeButton;
+    private JButton backButton;
     private JTable patientTable;
     private MainGUI mainGUI;
 
@@ -38,7 +39,7 @@ public class PatientInsertionGUI extends JFrame {
                 setVisible(false);  // Hide the PatientInsertionGUI
                 mainGUI.showMainGUI();  // Show the main GUI
             }
-        });        
+        });
     }
 
     private void createView() {
@@ -96,6 +97,17 @@ public class PatientInsertionGUI extends JFrame {
         removeButton.setPreferredSize(new Dimension(150, 40));
         removeButton.addActionListener(new RemovePatientActionListener());
         buttonPanel.add(removeButton);
+
+        backButton = new JButton("Back");
+        backButton.setPreferredSize(new Dimension(150, 40));
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainGUI.setVisible(true);
+                dispose();
+            }
+        });
+        buttonPanel.add(backButton);
 
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
 
@@ -226,14 +238,13 @@ public class PatientInsertionGUI extends JFrame {
         maritalStatusField.setText("");
         sexField.setText("");
     }
-    
-    
-    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             MainGUI mainGUI = new MainGUI();  // Assuming you have a MainGUI class
-            mainGUI.setVisible(true);
+            PatientInsertionGUI patientGUI = new PatientInsertionGUI(mainGUI);
+            patientGUI.setVisible(true);
         });
     }
 }
+
