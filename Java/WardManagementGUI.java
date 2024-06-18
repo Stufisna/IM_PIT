@@ -10,7 +10,7 @@ import javax.swing.table.DefaultTableModel;
 public class WardManagementGUI extends JFrame {
     private MainGUI mainGUI;
     private JTextField wardNumberField, locationField, totalBedsField, telephoneExtensionField;
-    private JButton insertButton, removeButton;
+    private JButton insertButton, removeButton, backButton;
     private JTable wardTable;
     private DefaultTableModel tableModel;
 
@@ -18,7 +18,7 @@ public class WardManagementGUI extends JFrame {
         this.mainGUI = mainGUI;
         setTitle("Ward Management System");
         setSize(600, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Changed to DISPOSE_ON_CLOSE
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         // Creating GUI components
         wardNumberField = new JTextField(15);
@@ -28,14 +28,22 @@ public class WardManagementGUI extends JFrame {
 
         insertButton = new JButton("Insert Ward");
         removeButton = new JButton("Remove Ward");
+        backButton = new JButton("Back");
 
         // Adding action listeners
         insertButton.addActionListener(new InsertWardListener());
         removeButton.addActionListener(new RemoveWardListener());
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose(); // Close only this window
+                mainGUI.setVisible(true); // Show the main GUI
+            }
+        });
 
         // Setting up the layout
         JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(5, 2));
+        inputPanel.setLayout(new GridLayout(6, 2)); // Changed to 6 rows for the back button
         inputPanel.add(new JLabel("Ward Number:"));
         inputPanel.add(wardNumberField);
         inputPanel.add(new JLabel("Location:"));
@@ -46,6 +54,7 @@ public class WardManagementGUI extends JFrame {
         inputPanel.add(telephoneExtensionField);
         inputPanel.add(insertButton);
         inputPanel.add(removeButton);
+        inputPanel.add(backButton); // Add the back button to the input panel
 
         // Setting up the table model
         String[] columnNames = {"Ward Number", "Location", "Total Beds", "Telephone Extension"};
@@ -64,7 +73,7 @@ public class WardManagementGUI extends JFrame {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 dispose(); // Close only this window
-                mainGUI.showMainGUI(); // Show the main GUI
+                mainGUI.setVisible(true); // Show the main GUI
             }
         });
     }
