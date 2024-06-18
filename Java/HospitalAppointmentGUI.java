@@ -16,12 +16,17 @@ public class HospitalAppointmentGUI extends JFrame {
     private JTextField staffNumberField;
     private DefaultListModel<String> appointmentListModel;
     private JList<String> appointmentList;
+    private JButton backButton;
+    private MainGUI mainGUI;
 
-    public HospitalAppointmentGUI() {
+    public HospitalAppointmentGUI(MainGUI mainGUI) {
+        this.mainGUI = mainGUI;
+
         // Initialize JFrame properties
         setTitle("Hospital Appointment Management");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
+        setLayout(new BorderLayout());
 
         // Initialize components
         appointmentNumberField = new JTextField(10);
@@ -31,27 +36,38 @@ public class HospitalAppointmentGUI extends JFrame {
         staffNumberField = new JTextField(10);
         JButton addButton = new JButton("Add Appointment");
         JButton refreshButton = new JButton("Refresh List");
+        backButton = new JButton("Back");
 
-        // Initialize appointment list model and list
+        // Layout for input fields
+        JPanel inputPanel = new JPanel(new GridLayout(6, 2, 5, 5));
+        inputPanel.add(new JLabel("Appointment Number:"));
+        inputPanel.add(appointmentNumberField);
+        inputPanel.add(new JLabel("Examination Room:"));
+        inputPanel.add(examinationRoomField);
+        inputPanel.add(new JLabel("Date and Time:"));
+        inputPanel.add(dateTimeField);
+        inputPanel.add(new JLabel("Patient Number:"));
+        inputPanel.add(patientNumberField);
+        inputPanel.add(new JLabel("Staff Number:"));
+        inputPanel.add(staffNumberField);
+        inputPanel.add(addButton);
+        inputPanel.add(refreshButton);
+
+        // Panel for the back button
+        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        backPanel.add(backButton);
+
+        // Panel for the appointment list
         appointmentListModel = new DefaultListModel<>();
         appointmentList = new JList<>(appointmentListModel);
+        JScrollPane listScrollPane = new JScrollPane(appointmentList);
 
-        // Add components to the JFrame
-        JPanel panel = new JPanel(new GridLayout(7, 2));
-        panel.add(new JLabel("Appointment Number:"));
-        panel.add(appointmentNumberField);
-        panel.add(new JLabel("Examination Room:"));
-        panel.add(examinationRoomField);
-        panel.add(new JLabel("Date and Time:"));
-        panel.add(dateTimeField);
-        panel.add(new JLabel("Patient Number:"));
-        panel.add(patientNumberField);
-        panel.add(new JLabel("Staff Number:"));
-        panel.add(staffNumberField);
-        panel.add(new JLabel()); // Placeholder for spacing
-        panel.add(addButton);
+        // Add components to the frame
+        add(inputPanel, BorderLayout.NORTH);
+        add(listScrollPane, BorderLayout.CENTER);
+        add(backPanel, BorderLayout.SOUTH);
 
-        // Add action listener to the Add button
+        // Add action listeners
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -60,40 +76,50 @@ public class HospitalAppointmentGUI extends JFrame {
             }
         });
 
-        JPanel refreshPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        refreshPanel.add(refreshButton);
-        getContentPane().add(panel, BorderLayout.NORTH);
-        getContentPane().add(new JScrollPane(appointmentList), BorderLayout.CENTER);
-        getContentPane().add(refreshPanel, BorderLayout.SOUTH);
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                refreshAppointmentList();
+            }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainGUI.showMainGUI();
+                setVisible(false);
+            }
+        });
+
+        // Refresh the appointment list on startup
+        refreshAppointmentList();
     }
 
     // Method to add appointment to the database
-// Method to add appointment to the database
-private void addAppointment() {
-    String url = "jdbc:postgresql://localhost:5432/postgres";
-    String username = "postgres";
-    String password = "1234";
+    private void addAppointment() {
+        String url = "jdbc:postgresql://localhost:5432/postgres";
+        String username = "postgres";
+        String password = "1234";
 
-    try (Connection connection = DriverManager.getConnection(url, username, password)) {
-        String sql = "INSERT INTO appointment (appointment_number, examination_room, date_and_time_of_appointment, patient_number, staff_number) VALUES (?, ?, CAST(? AS TIMESTAMP), ?, ?)";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setInt(1, Integer.parseInt(appointmentNumberField.getText()));
-        statement.setString(2, examinationRoomField.getText());
-        statement.setString(3, dateTimeField.getText()); // Assuming dateTimeField.getText() returns a valid timestamp string
-        statement.setString(4, patientNumberField.getText());
-        statement.setString(5, staffNumberField.getText());
+        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            String sql = "INSERT INTO appointment (appointment_number, examination_room, date_and_time_of_appointment, patient_number, staff_number) VALUES (?, ?, CAST(? AS TIMESTAMP), ?, ?)";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, Integer.parseInt(appointmentNumberField.getText()));
+            statement.setString(2, examinationRoomField.getText());
+            statement.setString(3, dateTimeField.getText()); // Assuming dateTimeField.getText() returns a valid timestamp string
+            statement.setString(4, patientNumberField.getText());
+            statement.setString(5, staffNumberField.getText());
 
-        int rowsInserted = statement.executeUpdate();
-        if (rowsInserted > 0) {
-            JOptionPane.showMessageDialog(this, "Appointment added successfully!");
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to add appointment.");
+            int rowsInserted = statement.executeUpdate();
+            if (rowsInserted > 0) {
+                JOptionPane.showMessageDialog(this, "Appointment added successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to add appointment.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
     }
-}
-
 
     // Method to refresh the appointment list from the database
     private void refreshAppointmentList() {
@@ -130,7 +156,7 @@ private void addAppointment() {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            HospitalAppointmentGUI gui = new HospitalAppointmentGUI();
+            HospitalAppointmentGUI gui = new HospitalAppointmentGUI(null);
             gui.setVisible(true);
             gui.refreshAppointmentList(); // Refresh list on startup
         });
